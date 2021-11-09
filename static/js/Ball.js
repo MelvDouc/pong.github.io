@@ -26,6 +26,9 @@ export default class Ball {
             return "left";
         return "right";
     }
+    get direction() {
+        return (this.xDir < 0) ? "left" : "right";
+    }
     randomDir() {
         const multiplier = (Math.random() < 0.5) ? -1 : 1;
         return this.speed / 2 * multiplier;

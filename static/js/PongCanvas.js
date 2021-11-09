@@ -23,28 +23,6 @@ export default class PongCanvas extends HTMLCanvasElement {
     static get centerY() {
         return this.cHeight / 2;
     }
-    static movePaddles(e) {
-        switch (e.key) {
-            case "y":
-                if (this.leftPaddle.top > 0)
-                    this.leftPaddle.moveUp();
-                break;
-            case "h":
-                if (this.leftPaddle.bottom < this.cHeight)
-                    this.leftPaddle.moveDown();
-                break;
-            case "ArrowUp":
-                if (this.rightPaddle.top > 0)
-                    this.rightPaddle.moveUp();
-                break;
-            case "ArrowDown":
-                if (this.rightPaddle.bottom < this.cHeight)
-                    this.rightPaddle.moveDown();
-                break;
-            default:
-                break;
-        }
-    }
     static draw() {
         this.requestID = requestAnimationFrame(this.draw.bind(this));
         this.drawBackground();
@@ -89,7 +67,6 @@ export default class PongCanvas extends HTMLCanvasElement {
         };
     }
     connectedCallback() {
-        window.addEventListener("keydown", PongCanvas.movePaddles.bind(PongCanvas));
         PongCanvas.draw();
     }
 }
