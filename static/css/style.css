@@ -1,0 +1,25 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100vh;
+}
+
+#App {
+  --hs: 203, 42%;
+  --l1: 55%;
+  --l2: 45%;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  place-items: center;
+  background: hsl(var(--hs), var(--l1));
+  background: radial-gradient(
+    hsl(var(--hs), var(--l2)),
+    hsl(var(--hs), var(--l1)),
+    hsl(var(--hs), var(--l2))
+  );
+}
