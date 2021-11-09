@@ -25,11 +25,11 @@ export default class PongCanvas extends HTMLCanvasElement {
     }
     static movePaddles(e) {
         switch (e.key) {
-            case "a":
+            case "Shift":
                 if (this.leftPaddle.top > 0)
                     this.leftPaddle.moveUp();
                 break;
-            case "q":
+            case "Control":
                 if (this.leftPaddle.bottom < this.cHeight)
                     this.leftPaddle.moveDown();
                 break;
