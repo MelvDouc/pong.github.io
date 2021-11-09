@@ -2,102 +2,60 @@ import Paddle from "./Paddle.js";
 import Ball from "./Ball.js";
 
 export default class PongCanvas extends HTMLCanvasElement {
-  readonly ctx: CanvasRenderingContext2D;
-  readonly cWidth: number;
-  readonly cHeight: number;
-  readonly pWidth: number;
-  readonly pHeight: number;
-  readonly leftPaddle: Paddle;
-  readonly rightPaddle: Paddle;
-  readonly ball: Ball;
-  readonly textY: number;
-  readonly itemsColor = "white";
-  leftScore: number = 0;
-  rightScore: number = 0;
-  requestID: number;
+  static leftPaddle: Paddle;
+  static rightPaddle: Paddle;
+  static ball: Ball;
+  static ctx: CanvasRenderingContext2D;
+  static cWidth: number;
+  static cHeight: number;
+  static leftScore: number = 0;
+  static rightScore: number = 0;
+  static itemsColor = "white";
+  static textY: number;
+  static requestID: number;
 
-  constructor() {
-    super();
-
-    this.ctx = <CanvasRenderingContext2D>this.getContext("2d");
-
-    const { width, height } = this.dimensions;
-    this.cWidth = width;
-    this.cHeight = height;
-    this.pWidth = width / 40;
-    this.pHeight = height / 4;
-    this.textY = (height + 45) / 2;
-    this.setAttribute("width", width.toString());
-    this.setAttribute("height", height.toString());
-
-    const paddleInitTop = (height - this.pHeight) / 2;
-    this.leftPaddle = new Paddle({
-      ctx: this.ctx,
-      width: this.pWidth,
-      height: this.pHeight,
-      top: paddleInitTop,
-      left: this.pWidth,
-    });
-    this.rightPaddle = new Paddle({
-      ctx: this.ctx,
-      width: this.pWidth,
-      height: this.pHeight,
-      top: paddleInitTop,
-      left: this.cWidth - this.pWidth * 2
-    });
-
-    this.ball = new Ball(width / 2, height / 2, this.pWidth / 2);
+  static get centerX(): number {
+    return this.cWidth / 2;
   }
 
-  get dimensions() {
-    const parent = <HTMLElement>this.parentElement,
-      computedStyle = getComputedStyle(parent),
-      parentWidth = parseFloat(computedStyle.width),
-      parentHeight = parseFloat(computedStyle.height);
-    return {
-      width: parentWidth * 0.8,
-      height: parentHeight * 0.8
-    };
+  static get centerY(): number {
+    return this.cHeight / 2;
   }
 
-  connectedCallback() {
-    window.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "a":
-          if (this.leftPaddle.top > 0)
-            this.leftPaddle.moveUp();
-          break;
-        case "q":
-          if (this.leftPaddle.bottom < this.cHeight)
-            this.leftPaddle.moveDown();
-          break;
-        case "ArrowUp":
-          if (this.rightPaddle.top > 0)
-            this.rightPaddle.moveUp();
-          break;
-        case "ArrowDown":
-          if (this.rightPaddle.bottom < this.cHeight)
-            this.rightPaddle.moveDown();
-          break;
-        default:
-          break;
-      }
-    });
-
-    this.draw();
+  static movePaddles(e: KeyboardEvent) {
+    switch (e.key) {
+      case "a":
+        if (this.leftPaddle.top > 0)
+          this.leftPaddle.moveUp();
+        break;
+      case "q":
+        if (this.leftPaddle.bottom < this.cHeight)
+          this.leftPaddle.moveDown();
+        break;
+      case "ArrowUp":
+        if (this.rightPaddle.top > 0)
+          this.rightPaddle.moveUp();
+        break;
+      case "ArrowDown":
+        if (this.rightPaddle.bottom < this.cHeight)
+          this.rightPaddle.moveDown();
+        break;
+      default:
+        break;
+    }
   }
 
-  draw(): void {
+  static draw(): void {
     this.requestID = requestAnimationFrame(this.draw.bind(this));
     this.drawBackground();
     this.ctx.fillStyle = this.itemsColor;
     this.leftPaddle.draw();
     this.rightPaddle.draw();
     this.drawScore();
-    this.drawBall();
+    this.ball.draw();
   }
 
-  reset() {
+  static reset() {
     this.ball.reset();
     this.leftPaddle.reset();
     this.rightPaddle.reset();
@@ -107,7 +65,7 @@ export default class PongCanvas extends HTMLCanvasElement {
     }, 1000);
   }
 
-  drawBackground(): void {
+  static drawBackground(): void {
     this.ctx.fillStyle = "#333";
     this.ctx.fillRect(0, 0, this.cWidth, this.cHeight);
     this.ctx.strokeStyle = this.itemsColor;
@@ -119,7 +77,7 @@ export default class PongCanvas extends HTMLCanvasElement {
     this.ctx.stroke();
   }
 
-  drawScore(): void {
+  static drawScore(): void {
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "lightskyblue";
     this.ctx.font = "45px Consolas";
@@ -135,52 +93,40 @@ export default class PongCanvas extends HTMLCanvasElement {
     );
   }
 
-  isBallOnLeftPaddle(): boolean {
-    return this.ball.left <= this.leftPaddle.right
-      && this.ball.left > this.leftPaddle.left
-      && this.ball.bottom >= this.leftPaddle.top
-      && this.ball.top <= this.leftPaddle.bottom;
+  constructor() {
+    super();
+
+    PongCanvas.ctx = <CanvasRenderingContext2D>this.getContext("2d");
+
+    const { width, height } = this.dimensions;
+    PongCanvas.cWidth = width;
+    PongCanvas.cHeight = height;
+    Paddle.width = width / 40;
+    Paddle.height = height / 4;
+    Paddle.initTop = (height - Paddle.height) / 2;
+    PongCanvas.textY = (height + 45) / 2;
+    this.setAttribute("width", width.toString());
+    this.setAttribute("height", height.toString());
+
+    PongCanvas.leftPaddle = new Paddle(Paddle.width, "left");
+    PongCanvas.rightPaddle = new Paddle(width - Paddle.width * 2, "right");
+    PongCanvas.ball = new Ball();
   }
 
-  isBallOnRightPaddle(): boolean {
-    return this.ball.right >= this.rightPaddle.left
-      && this.ball.left < this.rightPaddle.right
-      && this.ball.bottom >= this.rightPaddle.top
-      && this.ball.top <= this.rightPaddle.bottom;
+  get dimensions() {
+    const parent = <HTMLElement>this.parentElement,
+      computedStyle = getComputedStyle(parent),
+      parentWidth = parseFloat(computedStyle.width),
+      parentHeight = parseFloat(computedStyle.height);
+    return {
+      width: parentWidth * 0.8,
+      height: parentHeight * 0.8
+    };
   }
 
-  updateBallCoordinates() {
-    const { ball } = this;
-    ball.move();
+  connectedCallback() {
+    window.addEventListener("keydown", PongCanvas.movePaddles.bind(PongCanvas));
 
-    if (ball.xDir < 0 && ball.left < 0) {
-      this.rightScore++;
-      return this.reset();
-    }
-
-    if (ball.xDir > 0 && ball.right > this.cWidth) {
-      this.leftScore++;
-      return this.reset();
-    }
-
-    if (this.isBallOnLeftPaddle() || this.isBallOnRightPaddle())
-      ball.changeXDir();
-
-    if (ball.top <= 0 || ball.bottom >= this.cHeight)
-      ball.yDir *= -1;
-  }
-
-  drawBall(): void {
-    this.updateBallCoordinates();
-    this.ctx.fillStyle = this.itemsColor;
-    this.ctx.beginPath();
-    this.ctx.arc(
-      this.ball.x,
-      this.ball.y,
-      this.ball.radius,
-      0,
-      2 * Math.PI
-    );
-    this.ctx.fill();
+    PongCanvas.draw();
   }
 }

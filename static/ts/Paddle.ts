@@ -1,27 +1,26 @@
-import { PaddleInitializer } from "./types.js";
+import PongCanvas from "./PongCanvas.js";
+import { Side } from "./types.js";
 
 export default class Paddle {
-  private readonly ctx: CanvasRenderingContext2D;
-  private readonly width: number;
-  private readonly height: number;
-  private readonly initTop: number;
+  public static width: number;
+  public static height: number;
+  public static initTop: number;
+
   private readonly speed: number = 20;
   public readonly left: number;
   public readonly right: number;
+  public readonly side: Side;
   public top: number;
 
-  constructor(initializer: PaddleInitializer) {
-    this.ctx = initializer.ctx;
-    this.width = initializer.width;
-    this.height = initializer.height;
-    this.left = initializer.left;
-    this.right = this.left + this.width;
-    this.initTop = initializer.top;
-    this.top = initializer.top;
+  constructor(left: number, side: Side) {
+    this.left = left;
+    this.right = this.left + Paddle.width;
+    this.top = Paddle.initTop;
+    this.side = side;
   }
 
   public get bottom(): number {
-    return this.top + this.height;
+    return this.top + Paddle.height;
   }
 
   public moveUp(): void {
@@ -33,10 +32,15 @@ export default class Paddle {
   }
 
   public draw(): void {
-    this.ctx.fillRect(this.left, this.top, this.width, this.height);
+    PongCanvas.ctx.fillRect(
+      this.left,
+      this.top,
+      Paddle.width,
+      Paddle.height
+    );
   }
 
   public reset(): void {
-    this.top = this.initTop;
+    this.top = Paddle.initTop;
   }
 }
